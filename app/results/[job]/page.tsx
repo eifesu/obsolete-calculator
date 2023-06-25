@@ -12,6 +12,18 @@ export default function Home({ params }: { params: { job: string } }) {
     const [answer,setAnswer] = useState<Answer>()
     const router = useRouter()
 
+    
+    function slugify(text: string): string {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '') // Remove non-word characters
+            .replace(/[\s_-]+/g, '-') // Replace consecutive spaces, underscores, or dashes with a single dash
+            .trim(); // Trim leading and trailing spaces
+
+        // You can further customize the slugification process based on your requirements
+    }
+
+
     function unslugify(slug: string): string {
         return slug
           .split('-')
@@ -24,7 +36,7 @@ export default function Home({ params }: { params: { job: string } }) {
 
     useEffect(() => {
         async function validate() {
-            if(jobsTitles.some( title => title.toUpperCase() === unslugify(params.job).toUpperCase())) {
+            if(jobsTitles.some( title => slugify(title) === params.job)) {
                 ask()
             } else {
                 router.push('/')
@@ -87,7 +99,7 @@ export default function Home({ params }: { params: { job: string } }) {
                                     </div>
                                 </div>
 
-                                <Link href="/" className='w-full p-2 px-4 font-bold text-center text-white transition-all duration-300 ease-out rounded-full bg-primary active:bg-secondary active:text-primary disabled:opacity-20'>
+                                <Link href="/" className='w-full p-2 px-4 mt-4 font-bold text-center text-white transition-all duration-300 ease-out rounded-full bg-primary active:bg-secondary active:text-primary disabled:opacity-20'>
                                     Try again
                                 </Link>
                             </div>
