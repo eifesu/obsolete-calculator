@@ -2,7 +2,6 @@ import Header from '@/components/Header'
 import './globals.css'
 import { Space_Grotesk } from 'next/font/google'
 import Footer from '@/components/Footer'
-import Wrapper from '@/components/Wrapper'
 
 const inter = Space_Grotesk({ subsets: ['latin'] })
 

@@ -103,6 +103,7 @@ export default function Home() {
                                                 className="absolute z-10 w-full mt-2 overflow-x-hidden overflow-y-scroll font-bold text-white border rounded-lg bg-secondary top-full border-primary max-h-40">
                                                 {suggestions.map(
                                                     suggestion => <div
+                                                        key={suggestion}
                                                         onClick={() => setJob(suggestion)}
                                                         className='flex justify-between p-2 px-4 active:bg-background'>
                                                         <p>{suggestion}</p>
