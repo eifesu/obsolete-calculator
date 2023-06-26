@@ -5,38 +5,17 @@ import Loading from '@/components/Loading';
 import jobsTitles from '@/jobs.json'
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { slugify } from '@/utils/slug';
 
 export default function Home({ params }: { params: { job: string } }) {
-    const [loaded, setLoaded] = useState(false)
     const [status, setStatus] = useState("Making sure this job exists")
-    const [answer,setAnswer] = useState<Answer>()
+    const [answer, setAnswer] = useState<Answer>()
     const router = useRouter()
 
-    
-    function slugify(text: string): string {
-        return text
-            .toLowerCase()
-            .replace(/[^\w\s-]/g, '') // Remove non-word characters
-            .replace(/[\s_-]+/g, '-') // Replace consecutive spaces, underscores, or dashes with a single dash
-            .trim(); // Trim leading and trailing spaces
-
-        // You can further customize the slugification process based on your requirements
-    }
-
-
-    function unslugify(slug: string): string {
-        return slug
-          .split('-')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(' ');
-      
-        // You can add additional logic to handle special cases or exceptions
-      }
-      
 
     useEffect(() => {
         async function validate() {
-            if(jobsTitles.some( title => slugify(title) === params.job)) {
+            if (jobsTitles.some(title => slugify(title) === params.job)) {
                 ask()
             } else {
                 router.push('/')
@@ -44,61 +23,60 @@ export default function Home({ params }: { params: { job: string } }) {
         }
         async function ask() {
             setStatus("Kindly asking ChatGPT")
-            const res = await fetch('/api/hello', {
-            method: 'POST',
-            body: JSON.stringify(params.job)
+            const res = await fetch('/api/gpt', {
+                method: 'POST',
+                body: JSON.stringify(params.job)
             })
-            const json : Answer = await res.json().then(
+            const json: Answer = await res.json().then(
             )
-            if(json) {
+            if (json) {
                 setAnswer(json)
             }
         }
-        
+
         validate()
 
-    },[params.job, router])
+    }, [params.job, router])
 
     return (
         <>
             <AnimatePresence>
                 {
                     !answer ?
-                        <Loading status={status}/>
+                        <Loading status={status} />
                         :
                         <motion.main
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             className="relative flex flex-col items-center justify-start flex-1 select-none">
-                            <div className="flex flex-col items-center justify-center w-full h-full gap-2 p-8">
+                            <div className="flex flex-col items-center justify-center w-full h-full gap-1 p-6 py-2">
                                 <span className="p-2 px-4 text-xs font-bold text-white bg-gray-900 border border-gray-800 rounded-full">You have an estimated</span>
-                                <h1 className='text-4xl font-bold text-center text-white'>{answer.yearsLeft} years</h1>
-                                <p className='text-xs text-center text-white'>before AI can replace you as a </p>
-                                <p className='-mt-1 font-bold text-white text-md'>{params.job.toUpperCase()}</p>
+                                <h1 className='text-3xl font-bold text-center text-white'>{answer.yearsLeft} years</h1>
+                                <p className='-mt-1 text-xs text-center text-white'>before AI can replace you as a <span className="font-bold text-md">{params.job.toUpperCase()}</span></p>
 
-                                <div className="flex flex-col w-full gap-2 mt-4">
-                                    <div className="flex items-center justify-between w-full p-3 border rounded-lg border-green-primary bg-green-secondary">
-                                        <p className='text-xs font-medium text-white'>{answer.advantage1}</p>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className='text-green-primary '><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" /><path fill="currentColor" d="M10.94 7.94a1.5 1.5 0 0 1 2.12 0l5.658 5.656a1.5 1.5 0 1 1-2.122 2.121L12 11.121l-4.596 4.596a1.5 1.5 0 1 1-2.122-2.12l5.657-5.658Z" /></g></svg>
-                                    </div>
-                                    <div className="flex items-center justify-between w-full p-3 border rounded-lg border-green-primary bg-green-secondary">
-                                        <p className='text-xs font-medium text-white'>{answer.advantage2}</p>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className='text-green-primary '><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" /><path fill="currentColor" d="M10.94 7.94a1.5 1.5 0 0 1 2.12 0l5.658 5.656a1.5 1.5 0 1 1-2.122 2.121L12 11.121l-4.596 4.596a1.5 1.5 0 1 1-2.122-2.12l5.657-5.658Z" /></g></svg>
+                                <div className="flex flex-col w-full gap-4 mt-4">
+                                    <div className="flex items-center justify-between w-full gap-2 p-3 border rounded-lg border-green-primary bg-green-secondary">
+                                        <p className='text-xs font-medium text-white'>{answer.advantages}</p>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" className='text-green-primary'><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m20 7l-5.846 5.938c-.105.106-.158.16-.205.202c-.76.68-1.907.68-2.667 0a4.814 4.814 0 0 1-.205-.203c-.105-.106-.158-.16-.205-.202a2 2 0 0 0-2.667 0a4.86 4.86 0 0 0-.204.202L4 17M20 7v6m0-6h-6" /></svg>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-col w-full gap-2 mt-4">
-                                    <div className="flex items-center justify-between w-full p-3 border rounded-lg border-red-primary bg-red-secondary">
-                                        <p className='text-xs font-medium text-white'>{answer.disadvantage1}</p>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className='text-red-primary '><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" /><path fill="currentColor" d="M10.94 7.94a1.5 1.5 0 0 1 2.12 0l5.658 5.656a1.5 1.5 0 1 1-2.122 2.121L12 11.121l-4.596 4.596a1.5 1.5 0 1 1-2.122-2.12l5.657-5.658Z" /></g></svg>
-                                    </div>
-                                    <div className="flex items-center justify-between w-full p-3 border rounded-lg border-red-primary bg-red-secondary">
-                                        <p className='text-xs font-medium text-white'>{answer.disadvantage2}</p>
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" className='text-red-primary '><g fill="none" fill-rule="evenodd"><path d="M24 0v24H0V0h24ZM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018Zm.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022Zm-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01l-.184-.092Z" /><path fill="currentColor" d="M10.94 7.94a1.5 1.5 0 0 1 2.12 0l5.658 5.656a1.5 1.5 0 1 1-2.122 2.121L12 11.121l-4.596 4.596a1.5 1.5 0 1 1-2.122-2.12l5.657-5.658Z" /></g></svg>
+                                <div className="flex flex-col w-full gap-4 mt-2">
+                                    <div className="flex items-center justify-between w-full gap-2 p-3 border rounded-lg border-red-primary bg-red-secondary">
+                                        <p className='text-xs font-medium text-white'>{answer.disadvantages}</p>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" className='text-red-primary'><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m20 17l-5.846-5.938a4.945 4.945 0 0 0-.205-.202a1.999 1.999 0 0 0-2.667 0c-.047.042-.1.096-.205.203c-.105.106-.158.16-.205.202a2 2 0 0 1-2.667 0A4.898 4.898 0 0 1 8 11.062L4 7m16 10v-6m0 6h-6" /></svg>
                                     </div>
                                 </div>
 
+
+
+                                <p className='mt-4 text-xs text-center text-white'>You should become a </p>
+                                <h1 className='-mt-1 text-2xl font-bold text-center text-white'>{answer.reconversion}</h1>
+                                <div className="flex items-center justify-between w-full gap-2 p-3 border rounded-lg border-primary bg-secondary">
+                                    <p className='text-xs font-medium text-white'>{answer.desc}</p>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 256 256" className='text-primary'><path fill="currentColor" d="M243 96.05a20 20 0 0 0-17.26-13.72l-57-4.93l-22.3-53.14a20 20 0 0 0-36.82 0L87.29 77.4l-57 4.93a20 20 0 0 0-11.42 35.07l43.32 37.8l-13 56.24A20 20 0 0 0 79 233.1l49-29.76l49 29.76a20 20 0 0 0 29.8-21.66l-13-56.24l43.32-37.8A20 20 0 0 0 243 96.05Zm-66.75 42.62a20 20 0 0 0-6.35 19.63l11.39 49.32l-42.94-26.08a19.9 19.9 0 0 0-20.7 0l-42.94 26.08L86.1 158.3a20 20 0 0 0-6.35-19.63l-38.09-33.23l50.14-4.34a19.92 19.92 0 0 0 16.69-12.19L128 42.42l19.51 46.49a19.92 19.92 0 0 0 16.69 12.19l50.14 4.34Z"/></svg>
+                                </div>
                                 <Link href="/" className='w-full p-2 px-4 mt-4 font-bold text-center text-white transition-all duration-300 ease-out rounded-full bg-primary active:bg-secondary active:text-primary disabled:opacity-20'>
                                     Try again
                                 </Link>
